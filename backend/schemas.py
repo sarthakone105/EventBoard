@@ -1,24 +1,28 @@
 # backend/schemas.py
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
+
 
 # -------------------------------------------------
 # PLAYER SCHEMAS
 # -------------------------------------------------
 class PlayerBase(BaseModel):
+    name: str
+    age: int
+    force: str
+    rank: str
+
+
+class PlayerCreate(PlayerBase):
+    player_id: int = Field(..., description="Chest number (unique ID for player)")
+
+
+class PlayerUpdate(BaseModel):
     name: Optional[str] = None
     age: Optional[int] = None
     force: Optional[str] = None
     rank: Optional[str] = None
-
-
-class PlayerCreate(PlayerBase):
-    player_id: int   # You manually assign chest number (unique ID for player)
-
-
-class PlayerUpdate(PlayerBase):
-    pass  # Allows partial updates (PATCH)
 
 
 class PlayerOut(PlayerBase):
@@ -26,25 +30,28 @@ class PlayerOut(PlayerBase):
 
     class Config:
         orm_mode = True
-        from_attributes = True  # works with SQLAlchemy ORM objects
+        from_attributes = True
 
 
 # -------------------------------------------------
 # JUDGE SCHEMAS
 # -------------------------------------------------
 class JudgeBase(BaseModel):
-    name: Optional[str] = None
-    age: Optional[int] = None
-    force: Optional[str] = None
-    rank: Optional[str] = None
+    name: str
+    age: int
+    force: str
+    rank: str
 
 
 class JudgeCreate(JudgeBase):
     pass
 
 
-class JudgeUpdate(JudgeBase):
-    pass
+class JudgeUpdate(BaseModel):
+    name: Optional[str] = None
+    age: Optional[int] = None
+    force: Optional[str] = None
+    rank: Optional[str] = None
 
 
 class JudgeOut(JudgeBase):
@@ -59,7 +66,7 @@ class JudgeOut(JudgeBase):
 # EVENT SCHEMAS
 # -------------------------------------------------
 class EventBase(BaseModel):
-    name: Optional[str] = None
+    name: str
     round_name: Optional[str] = None
     event_date: Optional[datetime] = None
 
@@ -68,8 +75,10 @@ class EventCreate(EventBase):
     pass
 
 
-class EventUpdate(EventBase):
-    pass
+class EventUpdate(BaseModel):
+    name: Optional[str] = None
+    round_name: Optional[str] = None
+    event_date: Optional[datetime] = None
 
 
 class EventOut(EventBase):
@@ -87,15 +96,15 @@ class ScoreBase(BaseModel):
     event_id: int
     player_id: int
     judge_id: int
-    score: float
+    score: float = Field(..., ge=0, le=10, description="Score must be between 0 and 10")
 
 
 class ScoreCreate(ScoreBase):
-    score_date: Optional[datetime] = datetime.utcnow()
+    score_date: datetime = Field(default_factory=datetime.utcnow)
 
 
 class ScoreUpdate(BaseModel):
-    score: Optional[float] = None
+    score: Optional[float] = Field(None, ge=0, le=10, description="Updated score between 0 and 10")
 
 
 class ScoreOut(ScoreBase):
@@ -108,7 +117,7 @@ class ScoreOut(ScoreBase):
 
 
 # -------------------------------------------------
-# NESTED OUTPUT (optional, for leaderboards)
+# NESTED OUTPUT (for leaderboards or detailed score view)
 # -------------------------------------------------
 class ScoreDetailed(ScoreOut):
     player: Optional[PlayerOut] = None

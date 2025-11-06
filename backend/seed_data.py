@@ -1,8 +1,10 @@
-# backend/seed_data.py
-from backend.database import SessionLocal
-from backend.models import Player, Judge, Event
-from datetime import datetime, timedelta
+# seed_data.py
+import os
 import random
+from datetime import datetime, timedelta
+
+from database import SessionLocal     # ✅ removed 'backend.'
+from models import Player, Judge, Event  # ✅ removed 'backend.'
 
 # -------------------------------------------------------
 # Connect to DB session

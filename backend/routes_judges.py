@@ -4,13 +4,15 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from backend.database import SessionLocal
-from backend.models import Judge
-from backend.schemas import JudgeCreate, JudgeUpdate, JudgeOut
+from database import SessionLocal   # ✅ changed for Render
+from models import Judge            # ✅ changed for Render
+from schemas import JudgeCreate, JudgeUpdate, JudgeOut  # ✅ changed for Render
 
 router = APIRouter(prefix="/judges", tags=["Judges"])
 
+# -------------------------------------------------
 # Dependency - get DB session per request
+# -------------------------------------------------
 def get_db():
     db = SessionLocal()
     try:
@@ -19,9 +21,9 @@ def get_db():
         db.close()
 
 
-# ------------------------------
+# -------------------------------------------------
 # Create Judge
-# ------------------------------
+# -------------------------------------------------
 @router.post("", response_model=JudgeOut, status_code=status.HTTP_201_CREATED)
 def create_judge(payload: JudgeCreate, db: Session = Depends(get_db)):
     judge = Judge(
@@ -36,17 +38,17 @@ def create_judge(payload: JudgeCreate, db: Session = Depends(get_db)):
     return judge
 
 
-# ------------------------------
+# -------------------------------------------------
 # Get All Judges
-# ------------------------------
+# -------------------------------------------------
 @router.get("", response_model=List[JudgeOut])
 def list_judges(db: Session = Depends(get_db)):
     return db.query(Judge).all()
 
 
-# ------------------------------
+# -------------------------------------------------
 # Get Single Judge
-# ------------------------------
+# -------------------------------------------------
 @router.get("/{judge_id}", response_model=JudgeOut)
 def get_judge(judge_id: int, db: Session = Depends(get_db)):
     judge = db.query(Judge).filter(Judge.judge_id == judge_id).first()
@@ -55,9 +57,9 @@ def get_judge(judge_id: int, db: Session = Depends(get_db)):
     return judge
 
 
-# ------------------------------
+# -------------------------------------------------
 # Update Judge
-# ------------------------------
+# -------------------------------------------------
 @router.patch("/{judge_id}", response_model=JudgeOut)
 def update_judge(judge_id: int, payload: JudgeUpdate, db: Session = Depends(get_db)):
     judge = db.query(Judge).filter(Judge.judge_id == judge_id).first()
@@ -73,9 +75,9 @@ def update_judge(judge_id: int, payload: JudgeUpdate, db: Session = Depends(get_
     return judge
 
 
-# ------------------------------
+# -------------------------------------------------
 # Delete Judge
-# ------------------------------
+# -------------------------------------------------
 @router.delete("/{judge_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_judge(judge_id: int, db: Session = Depends(get_db)):
     judge = db.query(Judge).filter(Judge.judge_id == judge_id).first()

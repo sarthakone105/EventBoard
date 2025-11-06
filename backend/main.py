@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from backend.routes_players import router as players_router
-from backend.routes_judges import router as judges_router
-from backend.routes_events import router as events_router
-from backend.routes_scores import router as scores_router
-from backend.database import engine  # ✅ optional, used for /db-check route
+from routes_players import router as players_router
+from routes_judges import router as judges_router
+from routes_events import router as events_router
+from routes_scores import router as scores_router
+from database import engine  # ✅ optional, used for /db-check route
 
 app = FastAPI(
     title="EventBoard API",

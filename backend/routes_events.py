@@ -1,12 +1,14 @@
 # backend/routes_events.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from backend.database import SessionLocal
-from backend import models, schemas
+from database import SessionLocal   # ✅ changed for Render
+import models, schemas              # ✅ changed for Render
 
 router = APIRouter(prefix="/events", tags=["Events"])
 
+# -------------------------------------------------
 # DB dependency
+# -------------------------------------------------
 def get_db():
     db = SessionLocal()
     try:

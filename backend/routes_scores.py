@@ -2,8 +2,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from backend.database import SessionLocal
-from backend import models, schemas
+from database import SessionLocal
+import models, schemas
 
 router = APIRouter(prefix="/scores", tags=["Scores"])
 

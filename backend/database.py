@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from backend.models import Base, Player, Judge, Event, Score
+from models import Base, Player, Judge, Event, Score  # ✅ fixed import
 
 # Load .env only for local development
 load_dotenv()

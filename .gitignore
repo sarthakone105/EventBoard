@@ -29,3 +29,12 @@ docker-compose.override.yml
 # System files
 .DS_Store
 Thumbs.db
+
+
+
+
+# /stats/leaderboard
+# /stats/event-averages
+# /stats/summary
+# /stats/leaderboard-by-event
+# /stats/leaderboard-by-event/1

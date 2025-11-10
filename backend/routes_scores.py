@@ -1,5 +1,4 @@
-# backend/routes_scores.py
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from database import SessionLocal
@@ -17,24 +16,18 @@ def get_db():
         db.close()
 
 
-# -------------------------------------------------
-# POST /scores — Add or update score
-# -------------------------------------------------
-@router.post("/", response_model=schemas.ScoreOut)
+# Create or Update Score ✅
+@router.post("", response_model=schemas.ScoreOut, status_code=status.HTTP_201_CREATED)
 def add_or_update_score(score: schemas.ScoreCreate, db: Session = Depends(get_db)):
-    # Verify foreign key existence
-    player = db.query(models.Player).filter(models.Player.player_id == score.player_id).first()
-    judge = db.query(models.Judge).filter(models.Judge.judge_id == score.judge_id).first()
-    event = db.query(models.Event).filter(models.Event.event_id == score.event_id).first()
-
-    if not player:
+    # Foreign key validation
+    if not db.query(models.Player).filter(models.Player.player_id == score.player_id).first():
         raise HTTPException(status_code=404, detail="Player not found")
-    if not judge:
+    if not db.query(models.Judge).filter(models.Judge.judge_id == score.judge_id).first():
         raise HTTPException(status_code=404, detail="Judge not found")
-    if not event:
+    if not db.query(models.Event).filter(models.Event.event_id == score.event_id).first():
         raise HTTPException(status_code=404, detail="Event not found")
 
-    # Check existing score
+    # If score exists, update
     existing = (
         db.query(models.Score)
         .filter(
@@ -44,13 +37,13 @@ def add_or_update_score(score: schemas.ScoreCreate, db: Session = Depends(get_db
         )
         .first()
     )
-
     if existing:
         existing.score = score.score
         db.commit()
         db.refresh(existing)
         return existing
 
+    # Else, create
     new_score = models.Score(**score.dict())
     db.add(new_score)
     db.commit()
@@ -58,21 +51,17 @@ def add_or_update_score(score: schemas.ScoreCreate, db: Session = Depends(get_db
     return new_score
 
 
-# -------------------------------------------------
-# GET /scores — list all
-# -------------------------------------------------
-@router.get("/", response_model=list[schemas.ScoreOut])
+# Get All Scores ✅
+@router.get("", response_model=list[schemas.ScoreOut])
 def get_all_scores(db: Session = Depends(get_db)):
     return db.query(models.Score).all()
 
 
-# -------------------------------------------------
-# GET /scores/leaderboard/{event_id}
-# -------------------------------------------------
+# Get Leaderboard by Event ✅
 @router.get("/leaderboard/{event_id}")
 def get_leaderboard(event_id: int, db: Session = Depends(get_db)):
-    event_exists = db.query(models.Event).filter(models.Event.event_id == event_id).first()
-    if not event_exists:
+    event = db.query(models.Event).filter(models.Event.event_id == event_id).first()
+    if not event:
         raise HTTPException(status_code=404, detail="Event not found")
 
     results = (

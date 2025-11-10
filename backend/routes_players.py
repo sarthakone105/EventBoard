@@ -1,16 +1,15 @@
-# backend/routes_players.py
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from typing import List
-
 from database import SessionLocal
 from models import Player
 from schemas import PlayerCreate, PlayerUpdate, PlayerOut
+from utils.crud_helpers import create_object, update_object, delete_object
 
 router = APIRouter(prefix="/players", tags=["Players"])
 
 
-# Dependency - create a new DB session per request
+# Dependency - create new DB session per request
 def get_db():
     db = SessionLocal()
     try:
@@ -19,74 +18,35 @@ def get_db():
         db.close()
 
 
-# ------------------------------
-# Create Player
-# ------------------------------
+# Create Player ✅
 @router.post("", response_model=PlayerOut, status_code=status.HTTP_201_CREATED)
 def create_player(payload: PlayerCreate, db: Session = Depends(get_db)):
-    existing = db.query(Player).filter(Player.player_id == payload.player_id).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Player ID already exists")
-
-    player = Player(
-        player_id=payload.player_id,
-        name=payload.name,
-        age=payload.age,
-        force=payload.force,
-        rank=payload.rank,
-    )
-    db.add(player)
-    db.commit()
-    db.refresh(player)
-    return player
+    return create_object(db, Player, payload, label="Player", id_field="player_id")
 
 
-# ------------------------------
-# Get All Players
-# ------------------------------
+# Get All Players ✅
 @router.get("", response_model=List[PlayerOut])
 def list_players(db: Session = Depends(get_db)):
     return db.query(Player).all()
 
 
-# ------------------------------
-# Get Single Player
-# ------------------------------
+# Get Single Player ✅
 @router.get("/{player_id}", response_model=PlayerOut)
 def get_player(player_id: int, db: Session = Depends(get_db)):
     player = db.query(Player).filter(Player.player_id == player_id).first()
     if not player:
+        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Player not found")
     return player
 
 
-# ------------------------------
-# Update Player
-# ------------------------------
+# Update Player ✅
 @router.patch("/{player_id}", response_model=PlayerOut)
 def update_player(player_id: int, payload: PlayerUpdate, db: Session = Depends(get_db)):
-    player = db.query(Player).filter(Player.player_id == player_id).first()
-    if not player:
-        raise HTTPException(status_code=404, detail="Player not found")
-
-    update_data = payload.dict(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(player, key, value)
-
-    db.commit()
-    db.refresh(player)
-    return player
+    return update_object(db, Player, "player_id", player_id, payload, "Player")
 
 
-# ------------------------------
-# Delete Player
-# ------------------------------
-@router.delete("/{player_id}", status_code=status.HTTP_204_NO_CONTENT)
+# Delete Player ✅
+@router.delete("/{player_id}", status_code=status.HTTP_200_OK)
 def delete_player(player_id: int, db: Session = Depends(get_db)):
-    player = db.query(Player).filter(Player.player_id == player_id).first()
-    if not player:
-        raise HTTPException(status_code=404, detail="Player not found")
-
-    db.delete(player)
-    db.commit()
-    return None
+    return delete_object(db, Player, "player_id", player_id, "Player")

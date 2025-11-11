@@ -5,6 +5,7 @@ from routes_judges import router as judges_router
 from routes_events import router as events_router
 from routes_scores import router as scores_router
 from routes_stats import router as stats_router  # ✅ new router
+from routes_admin import router as admin_router
 from database import engine  # used for /db-check route
 
 # -------------------------------------------------
@@ -58,3 +59,4 @@ app.include_router(judges_router)
 app.include_router(events_router)
 app.include_router(scores_router)
 app.include_router(stats_router)  # ✅ new stats routes (leaderboard, summaries, etc.)
+app.include_router(admin_router)

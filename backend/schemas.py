@@ -1,4 +1,3 @@
-# backend/schemas.py
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
@@ -15,7 +14,8 @@ class PlayerBase(BaseModel):
 
 
 class PlayerCreate(PlayerBase):
-    player_id: int = Field(..., description="Chest number (unique ID for player)")
+    """No player_id needed — DB auto-generates it."""
+    pass
 
 
 class PlayerUpdate(BaseModel):

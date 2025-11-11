@@ -1,24 +1,42 @@
 import requests
 import random
+import time
 from datetime import datetime, timedelta
 
 BASE_URL = "https://eventboard-backend.onrender.com"
+ADMIN_KEY = "my-secret-key"  # Optional — only if your reset route is protected
+
+# -------------------------------------------------------
+# Step 0️⃣: Reset the database
+# -------------------------------------------------------
+print("🧹 Resetting the database...")
+
+headers = {"x-admin-key": ADMIN_KEY} if ADMIN_KEY else {}
+r = requests.post(f"{BASE_URL}/admin/reset-db", headers=headers)
+
+if r.status_code in [200, 201]:
+    print("✅ Database reset successful! Waiting 3 seconds before seeding...\n")
+    time.sleep(3)
+else:
+    print(f"❌ Failed to reset DB: {r.text}")
+    exit(1)
+
+# -------------------------------------------------------
+# Step 1️⃣ onward — seeding logic stays the same
+# -------------------------------------------------------
 
 forces = ["Army", "Navy", "Air Force", "BSF", "CRPF"]
 ranks = ["Captain", "Lieutenant", "Major", "Commander", "Sergeant"]
 
-# -------------------------------------------------------
-# 1️⃣ Create Judges
-# -------------------------------------------------------
+# 🧑‍⚖️ Judges
 print("🧑‍⚖️ Creating judges...")
 judge_names = [
     "Col. Singh", "Cmdr. Sharma", "Lt. Mehta", "Maj. Nair", "Capt. Desai",
     "Lt. Col. Reddy", "Maj. Bhatia", "Col. Pillai", "Cmdr. Rao", "Capt. Gupta"
 ]
 
-for i, name in enumerate(judge_names, start=1):
+for name in judge_names:
     payload = {
-        "judge_id": i,  # ✅ include ID
         "name": name,
         "age": random.randint(35, 60),
         "force": random.choice(forces),
@@ -30,10 +48,7 @@ for i, name in enumerate(judge_names, start=1):
 
 print("✅ Judges created.\n")
 
-
-# -------------------------------------------------------
-# 2️⃣ Create Events
-# -------------------------------------------------------
+# 🏁 Events
 print("🏁 Creating events...")
 event_names = [
     "Obstacle Course",
@@ -47,12 +62,11 @@ event_names = [
 ]
 
 start_date = datetime(2025, 2, 1)
-for i, name in enumerate(event_names, start=1):
+for name in event_names:
     payload = {
-        "event_id": i,  # ✅ include ID
         "name": name,
         "round_name": f"Round {random.choice(['1', '2', '3', 'Final'])}",
-        "event_date": (start_date + timedelta(days=i)).strftime("%Y-%m-%d")
+        "event_date": (start_date + timedelta(days=random.randint(0, 7))).strftime("%Y-%m-%d")
     }
     r = requests.post(f"{BASE_URL}/events", json=payload)
     if r.status_code not in [200, 201]:
@@ -60,10 +74,7 @@ for i, name in enumerate(event_names, start=1):
 
 print("✅ Events created.\n")
 
-
-# -------------------------------------------------------
-# 3️⃣ Create Players
-# -------------------------------------------------------
+# 🎖️ Players
 print("🎖️ Creating players...")
 first_names = [
     "Arjun", "Ravi", "Suresh", "Anita", "Priya", "Rahul", "Meena", "Vikas", "Sneha", "Ajay",
@@ -72,9 +83,8 @@ first_names = [
     "Harish", "Pooja", "Sanjay", "Geeta", "Akhil", "Rekha", "Mukesh", "Lata", "Santosh", "Tina"
 ]
 
-for i, name in enumerate(first_names, start=1):
+for name in first_names:
     payload = {
-        "player_id": i,  # ✅ required by your API
         "name": name,
         "age": random.randint(20, 40),
         "force": random.choice(forces),
@@ -86,10 +96,7 @@ for i, name in enumerate(first_names, start=1):
 
 print("✅ Players created.\n")
 
-
-# -------------------------------------------------------
-# 4️⃣ Create Scores
-# -------------------------------------------------------
+# 📊 Scores
 print("📊 Creating scores...")
 players = requests.get(f"{BASE_URL}/players").json()
 judges = requests.get(f"{BASE_URL}/judges").json()
@@ -125,4 +132,4 @@ else:
 
     print("✅ 500 random scores created successfully.\n")
 
-print("🎉 Database seeding completed via API.")
+print("🎉 Database reset + seeding completed via API.")

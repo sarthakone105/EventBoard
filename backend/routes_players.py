@@ -21,7 +21,7 @@ def get_db():
 # Create Player ✅
 @router.post("", response_model=PlayerOut, status_code=status.HTTP_201_CREATED)
 def create_player(payload: PlayerCreate, db: Session = Depends(get_db)):
-    return create_object(db, Player, payload, label="Player", id_field="player_id")
+    return create_object(db, Player, payload, label="Player")
 
 
 # Get All Players ✅

@@ -21,7 +21,7 @@ def get_db():
 # Create Judge ✅
 @router.post("", response_model=JudgeOut, status_code=status.HTTP_201_CREATED)
 def create_judge(payload: JudgeCreate, db: Session = Depends(get_db)):
-    return create_object(db, Judge, payload, label="Judge", id_field="judge_id")
+    return create_object(db, Judge, payload, label="Judge")
 
 
 # Get All Judges ✅

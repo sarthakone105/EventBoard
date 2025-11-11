@@ -21,7 +21,7 @@ def get_db():
 # Create Event ✅
 @router.post("", response_model=EventOut, status_code=status.HTTP_201_CREATED)
 def create_event(payload: EventCreate, db: Session = Depends(get_db)):
-    return create_object(db, Event, payload, label="Event", id_field="event_id")
+    return create_object(db, Event, payload, label="Event")
 
 
 # Get All Events ✅
